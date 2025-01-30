@@ -41,8 +41,12 @@ EOF
 
                     // Now build
                     sh """
+                        docker buildx create --use --name multiarch_builder || true
                         cd ${APP_DIR}
-                        docker build -t ${DOCKER_IMAGE} .
+                        docker buildx build \
+                            --platform linux/arm/v7 \
+                            -t ${DOCKER_IMAGE} \
+                            --load .
                     """
                 }
             }
