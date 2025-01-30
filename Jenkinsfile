@@ -57,7 +57,7 @@ EOF
                 script {
                     sh """
                         docker save -o ${IMAGE_TAR} ${DOCKER_IMAGE}
-                        scp ${IMAGE_TAR} ${REMOTE_USER}@${REMOTE_HOST}:/home/${REMOTE_USER}/
+                        scp -i ~/.ssh/rasp_key ${IMAGE_TAR} ${REMOTE_USER}@${REMOTE_HOST}:/home/${REMOTE_USER}/
                     """
                 }
             }
