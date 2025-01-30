@@ -1,7 +1,6 @@
 /* Requires the Docker Pipeline plugin */
 pipeline {
     agent any
-    }
 
     environment {
         REPO_URL = 'https://github.com/kottek-pmc/raspapi'
