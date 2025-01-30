@@ -1,6 +1,10 @@
 /* Requires the Docker Pipeline plugin */
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.11.2-bullseye' // Debian-based image compatible with Raspberry Pi
+        }
+    }
 
     environment {
         REPO_URL = 'https://github.com/kottek-pmc/raspapi'
