@@ -1,9 +1,6 @@
 /* Requires the Docker Pipeline plugin */
 pipeline {
-    agent {
-        docker {
-            image 'python:3.11.2-bullseye' // Debian-based image compatible with Raspberry Pi
-        }
+    agent any
     }
 
     environment {
