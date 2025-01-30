@@ -3,27 +3,43 @@ pipeline {
     agent any
 
     environment {
-        REPO_URL = 'https://github.com/kottek-pmc/raspapi'
-        APP_DIR = 'raspapi'
-        DOCKER_IMAGE = 'raspapi:latest'
-        IMAGE_TAR = 'raspapi.tar'
-        REMOTE_HOST = '10.0.0.238'  // Change to Raspberry Pi IP
-        REMOTE_USER = 'pmc'  // Change if needed
+        REPO_URL    = 'https://github.com/kottek-pmc/raspapi'
+        APP_DIR     = 'raspapi'
+        DOCKER_IMAGE= 'raspapi:latest'
+        IMAGE_TAR   = 'raspapi.tar'
+        REMOTE_HOST = '10.0.0.238'
+        REMOTE_USER = 'pmc'
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                script {
-                    sh 'rm -rf ${APP_DIR}'
-                    sh "git clone ${REPO_URL} ${APP_DIR}"
-                }
+                sh 'rm -rf ${APP_DIR}'
+                sh "git clone ${REPO_URL} ${APP_DIR}"
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
+                    // Optionally create a Dockerfile if the repo doesn't have one
+                    sh """
+                        cd ${APP_DIR}
+                        # Only create a Dockerfile if one doesn't exist already
+                        if [ ! -f Dockerfile ]; then
+                            cat <<EOF > Dockerfile
+FROM python:3.11.2-bullseye
+WORKDIR /app
+COPY requirements.txt /app
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . /app
+EXPOSE 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+EOF
+                        fi
+                    """
+
+                    // Now build
                     sh """
                         cd ${APP_DIR}
                         docker build -t ${DOCKER_IMAGE} .
@@ -51,8 +67,8 @@ pipeline {
                             docker load -i /home/${REMOTE_USER}/${IMAGE_TAR}
                             docker stop raspapi || true
                             docker rm raspapi || true
-                            docker run -d --name raspapi -p 8000:8000 raspapi:latest
-                            rm /home/${REMOTE_USER}/${IMAGE_TAR}  # Clean up transferred image
+                            docker run -d --name raspapi -p 8000:8000 ${DOCKER_IMAGE}
+                            rm /home/${REMOTE_USER}/${IMAGE_TAR}
                         EOF
                     """
                 }
