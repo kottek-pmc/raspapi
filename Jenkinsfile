@@ -58,22 +58,6 @@ EOF
                 }
             }
         }
-
-        stage('Deploy on Raspberry Pi') {
-            steps {
-                script {
-                    sh """
-                        ssh ${REMOTE_USER}@${REMOTE_HOST} << 'EOF'
-                            docker load -i /home/${REMOTE_USER}/${IMAGE_TAR}
-                            docker stop raspapi || true
-                            docker rm raspapi || true
-                            docker run -d --name raspapi -p 8000:8000 ${DOCKER_IMAGE}
-                            rm /home/${REMOTE_USER}/${IMAGE_TAR}
-                        EOF
-                    """
-                }
-            }
-        }
     }
 
     post {
