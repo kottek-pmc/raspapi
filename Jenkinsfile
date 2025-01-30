@@ -62,6 +62,16 @@ EOF
                 }
             }
         }
+        stage('Run Image') {
+            steps {
+                script {
+                    sh """
+                        ssh -i ~/.ssh/rasp_key ${REMOTE_USER}@${REMOTE_HOST}
+                        sudo docker run -dit --name raspapi -p 8000:8000 raspapi
+                    """
+                }
+            }
+        }
     }
 
     post {
